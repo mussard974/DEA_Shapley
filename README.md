@@ -168,7 +168,7 @@ df_ES = model.fit("ES",X,Y)
 contrib_df_ES = pd.DataFrame(df_ES, index = cepej.index, columns = columns)
 ```
 
-# Plot
+### Plot
 ```python
 import matplotlib.pyplot as plt
 fig, ax = plt.subplots(figsize=(14, 8))
