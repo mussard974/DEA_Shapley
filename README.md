@@ -18,6 +18,7 @@ In this package, we find:
 * numpy
 * pandas
 * pulp
+* matplotlib
 
 ```python
 pip install pulp
@@ -105,7 +106,19 @@ df = model.fit("shapley",X,Y)  # Otherwise Choose "ES" for equal surplus or "per
 
 ### Print the results
 ```python
-df = model.fit("shapley",X,Y)  # Otherwise Choose "ES" for equal surplus or "permutation" to compute the feature importance
+columns = [
+       "number_judges",
+       "number_no-judges",
+       "Information tools",
+       "Tools of communication"
+       ]
+contrib_df = pd.DataFrame(df, index = cepej.index, columns = columns)
+row_sums = contrib_df.sum(axis=1)
+contrib_pourcentage = contrib_df.div(row_sums, axis=0) * 100
+print("Absolute Contributions:", "\n")
+display(contrib_df)
+print("Contributions (%):", "\n")
+display(contrib_pourcentage)
 ```
 Absolute Contributions:
 
@@ -127,6 +140,49 @@ Absolute Contributions:
 | PT      | 2.968818e-11  | 3.087240e-11     | -3.192201e-11     | -1.865961e-11          |
 | SE      | 5.595550e-01  | 1.818898e+00     | -2.041919e+00     | 1.225966e+00           |
 
+Contributions (%):
 
-![Example Image](CD-order-1.91.png)
+| Country | Number Judges | Number No-Judges | Information Tools | Tools of Communication |
+|---------|---------------|------------------|-------------------|------------------------|
+| AT      | 4.163676e+02  | 4.163676e+02     | -1.149103e+03     | 4.163676e+02           |
+| BE      | 2.142023e+02  | 2.203321e+02     | -1.954170e+02     | -1.391175e+02          |
+| CH      | 7.278484e+01  | 3.710300e+01     | -1.417306e+01     | 4.285226e+00           |
+| DE      | 1.072378e+02  | 1.072378e+02     | -1.594619e+02     | 4.498634e+01           |
+| DK      | -1.595126e+13 | 1.798348e+13     | -1.595126e+13     | 1.391904e+13           |
+| ES      | 8.430863e+01  | 1.544264e+02     | -1.123212e+02     | -2.641380e+01          |
+| FI      | 7.682041e+02  | 3.116570e+02     | -1.152410e+03     | 1.725486e+02           |
+| FR      | 7.487574e+01  | 1.584355e+02     | -1.322068e+02     | -1.104444e+00          |
+| GR      | 7.605060e+13  | 6.525661e+13     | -7.985245e+13     | -6.145476e+13          |
+| IT      | 3.770401e+01  | 1.117574e+02     | -9.775592e+01     | 4.829455e+01           |
+| NL      | 3.578305e+02  | 3.468201e+02     | -3.106596e+02     | -2.939910e+02          |
+| NO      | -3.145871e+12 | -3.145871e+12    | 3.890059e+12      | 2.401684e+12           |
+| PL      | 2.431761e+02  | 2.431761e+02     | -2.668956e+02     | -1.194566e+02          |
+| PT      | 2.975081e+02  | 3.093752e+02     | -3.198935e+02     | -1.869897e+02          |
+| SE      | 3.581152e+01  | 1.164094e+02     | -1.306828e+02     | 7.846184e+01           |
+
+
+### Comparison with ES
+```python
+df_ES = model.fit("ES",X,Y)
+contrib_df_ES = pd.DataFrame(df_ES, index = cepej.index, columns = columns)
+```
+
+# Plot
+```python
+import matplotlib.pyplot as plt
+fig, ax = plt.subplots(figsize=(14, 8))
+width = 0.35  
+countries = cepej.index
+for i, input in enumerate(columns):
+    bar1 = ax.bar(np.arange(len(countries)) - width/2 + i*(width/4), contrib_df[input], width/4, label=f'{input} Shapley')
+    bar2 = ax.bar(np.arange(len(countries)) + width/2 + i*(width/4), contrib_df_ES[input], width/4, label=f'{input} ES')
+ax.set_xlabel('Countries')
+ax.set_ylabel('Values')
+ax.set_title('Comparison of Shapley and ES')
+ax.set_xticks(np.arange(len(countries)))
+ax.set_xticklabels(countries, rotation=90)
+ax.legend()
+plt.show()
+```
+![Example Image](shapley.png)
 
