@@ -29,20 +29,68 @@ pip install pulp
 from Shapley import ShapleyModel
 ```
 
-### Import data and organize the data (X = consumption y =  incomes)
+### Import data 
 
 ```python
+# Data
+import pandas as pd
 import numpy as np
-cepej = pd.read_excel('cepej_2018.xlsx', index_col=0)
-cepej = cepej.dropna()
-cepej.head()
+base = pd.read_excel('data.xlsx')
+base.head()
 ```
 
-### Fit the model (the function returns an array with all $s$-curves)
+### Organize the data (X = inputs y = outputs)
 
 ```python
-model = ShapleyModel(outputs = None, constraint = None, g_inputs = None, g_outputs = None)
+y1 = 1000 - cepej['disposition time'].to_numpy()
+y2 = cepej['clearance rate'].to_numpy()
+Y = np.column_stack((y1, y2))
+X = cepej[[
+       "number_judges",
+       "number_no-judges",
+       "Information tools",
+       "Tools of communication"
+       ]].to_numpy()
 ```
+
+### Parameters of the model
+
+```python
+outputs = "multi_dimensions"  # "one_dimension" for just one output
+g_inputs = np.ones((X.shape[1]))
+g_outputs = np.ones((Y.shape[1]))
+constraint = "DRS"
+```
+
+### Instantiate and fit the model (the function returns an array with all $s$-curves)
+
+```python
+from Shapley import ShapleyModel
+model = ShapleyModel(outputs = "multi-outputs", constraint = "DRS", g_inputs = np.ones((X.shape[1])), g_outputs =np.ones((Y.shape[1])))
+DDF_results = model.dea_ddf(X,Y)
+columns = ["DDF"]
+df = pd.DataFrame(DDF_results, columns=columns)
+df['Rank'] = df['DDF'].rank(ascending=True)
+display(df)
+```
+|    |          DDF          | Rank |
+|----|-----------------------|------|
+| 0  | 1.059028e-01          | 8.0  |
+| 1  | 1.302850e-11          | 5.0  |
+| 2  | 1.227791e-10          | 7.0  |
+| 3  | 2.474448e+00          | 14.0 |
+| 4  | 1.122606e-11          | 4.0  |
+| 5  | 3.753739e+00          | 15.0 |
+| 6  | 2.407980e-01          | 9.0  |
+| 7  | 1.781102e+00          | 13.0 |
+| 8  | 8.546978e-12          | 1.0  |
+| 9  | 1.252857e+00          | 10.0 |
+| 10 | 9.724485e-12          | 2.0  |
+| 11 | 1.593886e-11          | 6.0  |
+| 12 | 1.777659e+00          | 12.0 |
+| 13 | 9.978950e-12          | 3.0  |
+| 14 | 1.562500e+00          | 11.0 |
+
 
 ### Print the $s$-curves
 
@@ -51,87 +99,3 @@ model.graph_all()
 ```
 ![Example Image](CD-order-1.91.png)
 
-### Test for dominance between all commodities
-
-```python
-model.test_dominance_all()
-```
-|               | butane | sugar | flour | gasoline_all | diesel_fuel | essence |
-|---------------|--------|-------|-------|--------------|-------------|---------|
-| butane        |        | cross | cross | cross        | 1           | 1       |
-| sugar         | cross  |       | cross | cross        | 1           | 1       |
-| flour         | cross  | cross |       | cross        | 1           | 1       |
-| gasoline_all  | cross  | cross | cross |              | 1           | 1       |
-| diesel_fuel   | 0      | 0     | 0     | 0            |             | cross   |
-| essence       | 0      | 0     | 0     | 0            | cross       |         |
-
-### Find the critical ratios of costs of funds at the poverty line (z = 0.5*median(incomes))
-* First Table: critical ratios at z
-* Second Table: Percentiles where the $s$-curves cross
-
-```python
-model.critical_ratios_poverty()
-```
-|               | butane    | sugar     | flour     | gasoline_all | diesel_fuel | essence    |
-|---------------|-----------|-----------|-----------|--------------|-------------|------------|
-| butane        |           | cross     | cross     | cross        | 4.439557    | 6.074869   |
-| sugar         | cross     |           | cross     | cross        | 4.118908    | 5.63611    |
-| flour         | cross     | cross     |           | cross        | 9.314213    | 12.745108  |
-| gasoline_all  | cross     | cross     | cross     |              | 3.311577    | 4.531398   |
-| diesel_fuel   | 4.439557  | 4.118908  | 9.314213  | 3.311577     |             | cross      |
-| essence       | 6.074869  | 5.63611   | 12.745108 | 4.531398     | cross       |            |
-
-
-|               | butane    | sugar     | flour     | gasoline_all | diesel_fuel | essence    |
-|---------------|-----------|-----------|-----------|--------------|-------------|------------|
-| butane        |           | 0.986406  | 0.976196  | 0.027366     |             |            |
-| sugar         | 0.986406  |           | 0.979224  | 0.006945     |             |            |
-| flour         | 0.976196  | 0.979224  |           | 0.981123     |             |            |
-| gasoline_all  | 0.027366  | 0.006945  | 0.981123  |              |             |            |
-| diesel_fuel   |           |           |           |              |             | 0.009142   |
-| essence       |           |           |           | 0.009142     |             |            |
-
-* Third Table: for a fixed gamma this returns the percentile below which dominance is respected
-```python
-model.critical_ratios_poverty(gamma = 3)
-```
-|               | butane   | sugar    | flour    | gasoline_all | diesel_fuel | essence   |
-|---------------|----------|----------|----------|--------------|-------------|-----------|
-| butane        |          |          |          |              | 0.502315    | 0.707111  |
-| sugar         |          |          |          |              | 0.527484    | 0.699454  |
-| flour         |          |          |          |              | 0.544996    | 0.759646  |
-| gasoline_all  |          |          |          |              | 0.12359     | 0.640152  |
-| diesel_fuel   | 0.502315 | 0.527484 | 0.544996 | 0.12359      |             |           |
-| essence       | 0.707111 | 0.699454 | 0.759646 | 0.640152     |             |           |
-
-
-### Find the minimal fractional order (from dominance_param to dominance_param + 1)
-
-```python
-model.minimal_frac_dominance_all()
-```
-|               | butane | sugar | flour | gasoline_all | diesel_fuel | essence |
-|---------------|--------|-------|-------|--------------|-------------|---------|
-| butane        | 0.00   | 0.00  | 0.00  | 0.00         | 0.0         | 0.0     |
-| sugar         | 1.94   | 0.00  | 0.00  | 0.00         | 0.0         | 0.0     |
-| flour         | 1.97   | 1.97  | 0.00  | 0.00         | 0.0         | 0.0     |
-| gasoline_all  | 0.00   | 0.00  | 1.98  | 0.00         | 0.0         | 0.0     |
-| diesel_fuel   | 1.87   | 1.87  | 1.91  | 1.82         | 0.0         | 0.0     |
-| essence       | 1.88   | 1.88  | 1.91  | 1.85         | 0.0         | 0.0     |
-
-
-### Graph two $s$-curves
-
-```python
-model.graph("butane", "essence")
-```
-![Example Image](graph_pair.png)
-
-### Confidence intervals of $s$-curves
-```python
-s_curve_butane = results[0,:]
-s_curve_gasoline_all = results[3,:]
-CI_butane = model.bootstrap(s_curve_butane, confidence_interval = 0.99, B = 500)
-CI_gasoline_all = model.bootstrap(s_curve_gasoline_all, confidence_interval = 0.99, B = 500)
-```
-![Example Image](CI-curves.png)
