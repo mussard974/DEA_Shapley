@@ -36,8 +36,9 @@ from Shapley import ShapleyModel
 # Data
 import pandas as pd
 import numpy as np
-base = pd.read_excel('data.xlsx')
-base.head()
+cepej = pd.read_excel('cepej_example.xlsx', index_col=0)
+cepej = cepej.dropna()
+cepej.head()
 ```
 
 ### Organize the data (X = inputs y = outputs)
