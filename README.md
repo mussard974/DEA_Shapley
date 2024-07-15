@@ -187,3 +187,9 @@ plt.show()
 ```
 ![Example Image](shapley.png)
 
+### Feature importance
+```python
+df_permutation = model.fit("permutation",X,Y)
+contrib_df_permutation = pd.DataFrame(df_permutation, index = cepej.index, columns = columns)
+display(contrib_df_permutation)
+```
