@@ -119,6 +119,7 @@ class ShapleyModel(object):
         for i in range(k):
             values[:, i] = self.dea_ddf(X[:, i][:, np.newaxis], y)
         v_n = self.dea_ddf(X, y)
+        v_n = v_n[:, np.newaxis]
         row_sums = values.sum(axis=1)
         result = values + ((v_n - row_sums[:, np.newaxis]) / k)
         return result    
