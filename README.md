@@ -68,7 +68,7 @@ constraint = "DRS"            # select "VRS" or "CRS" or "IRS"
 
 ```python
 from Shapley import ShapleyModel
-model = ShapleyModel(outputs = "multi-outputs", constraint = "DRS", g_inputs = g_inputs, g_outputs = g_outputs)
+model = ShapleyModel(outputs = outputs, constraint = "DRS", g_inputs = g_inputs, g_outputs = g_outputs)
 ```
 
 ### Compute the DDF by DEA
