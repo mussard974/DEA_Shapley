@@ -20,7 +20,7 @@ In this package, we find:
 * pulp
 
 ```python
-pi install pulp
+pip install pulp
 ```
 
 ### Import Shapley
@@ -32,18 +32,16 @@ from Shapley import ShapleyModel
 ### Import data and organize the data (X = consumption y =  incomes)
 
 ```python
-base = pd.read_csv('primomaroc.csv', sep=',')
-X = base[['butane', 'sugar', 'flour', 'gasoline_all', 'diesel_fuel', 'essence']]
-y = base['incomes']
+import numpy as np
+cepej = pd.read_excel('cepej_2018.xlsx', index_col=0)
+cepej = cepej.dropna()
+cepej.head()
 ```
 
 ### Fit the model (the function returns an array with all $s$-curves)
 
 ```python
-model = FractionalDominance()
-fractional_param = 0.91
-dominance_param = 1
-results = model.fit(X, y, dominance_param = dominance_param, fractional_param = fractional_param)
+model = ShapleyModel(outputs = None, constraint = None, g_inputs = None, g_outputs = None)
 ```
 
 ### Print the $s$-curves
