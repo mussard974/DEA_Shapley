@@ -1,6 +1,6 @@
 # DEA_Shapley
-Compute DEA with the directional distance function (DDF) and return Shapley scores for each DMU
 ---
+Compute DEA with the directional distance function (DDF) and return Shapley scores for each DMU
 ---
 
 ### DEA_Shapley is a method to fit DDF DEA models with Shapley contributions
