@@ -10,7 +10,7 @@ In this package, we find:
   * Computation of DDF by DEA with CRS, DRS, VRS, IRS
   * Choose your own direction g for the DDF
   * Computation for one or multi-outputs
-  * Shaplaye contributions
+  * Shapley contributions
   * Equal Surplus contributions (ES)
   * Feature importance contributions
 
